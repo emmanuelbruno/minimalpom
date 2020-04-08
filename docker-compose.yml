@@ -1,0 +1,12 @@
+version: '3.5'
+
+# Run with : COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
+
+services:
+  myapp:
+    build:
+      context: ./
+      dockerfile: docker/MyApp/Dockerfile
+    environment:
+      - TRAVIS_BRANCH=${TRAVIS_BRANCH}
+      - TRAVIS_BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}

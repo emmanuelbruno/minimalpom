@@ -1,0 +1,7 @@
+.idea
+.travis.yml
+docker
+docker-compose.yml
+*.iml
+.dockerignore
+.gitignore

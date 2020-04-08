@@ -1,0 +1,34 @@
+language: bash
+
+env:
+  matrix:
+  - DOCKER_COMPOSE_VERSION=1.25.4
+  global:
+  - secure: gqOx2cFn0ilnGB7eYROkGLgiG4qjeTXJYw4SssgIkn74ladHj9IanUKtV8D/XyYhIpdpJE81/3a4eLKTMAhvB+rltoqZ3eoyME/tKBJD5UIRSa4TtfsmcRFnrRj5P4vEOFeXJAiCo1jkpKGwZJejfoGIYpK3SZew0lDIZqmxX84a2obg3okM4usq0BIqROjyGh7xsGnTkKSF4DVhTtuG6widJehNC65pc/4KvViEdhSFOagOBZeMCY9bRb30B5fMSbCMeMDejqL4NrOZTfa3oQU4YWdUyM88n7GSFLi6ZCjxjImxGAaXw2E5c5svy8k4U/FHsJgUSnCHt6Y6LuTIQ9gt4gpFKW3ZHtZJqGwi65xvztO+H2KMYoVS9OfWlbcJuwuQk20v262UcVsH42kYgJiF7Inv72LTYYoUZOAMyLYAZVaGW+jrZxxfPmk7j9pPvY1R9eA5N0sI9jpZ+4nN68ceS6KPPKPmXttMYX3gvVG4SNa9aGJLAGyNzIxFSk5sR+qnodySRYG3uqmRWfixfmTnE575Csyh06lspni8hMiOikUbVLwxZoWdw+iT/PNjECkRziQ2mjMIKBaIvp3LRtLMCPB0/SWuqryQSimLr87UruRf1yb2Vv78AGNZ/NIc7JmAcHMf2HkIFUJRF0jHMNAnxyEiIFSp5NZzZA/vmpI=
+  - secure: d9C/BtY4cN+NDV6ra+Xn0qS9kgBxU2XjGqgxLhQkn0gOGHw+NDA+MO9fA0VLBdLHbHBhgwcn5ITxop10ts0xAG/dgHUJIG8EHSuTFQ5bZlKrU1ipwT9zJ+3s7QZZ//gIOio/xuJocK5rOhLCns9Mb5bQcbDbJo/FEVuP8TQF8vkn1KKJQ9EysGjrepJb7iFidmJp2jE8pRjo8utRqJk6jyN5RTXeYJu+cXDcLV5Hb24C7BZ9Rmb/F2ITEwhmtA7TZvzv55bR4b1aRCXD6z6Q8BoUfJ81rkaQxGWfRMZx5MO/zpxk9+Eg57Sazkeeq9NqeYAOFre0rO4ZMcQWbzdYEgEweE6rMSm1oR5eb8KHlfDbzFYEcdNaChaTIa5g0ME14RqYQ+OOoR6sJMrUWwt5Gw2Wtxz3Z4hGQNurVVNBiwyeJ1VYFZQvdoiho6rbN2j4C6T12x8qKTv3dSLsz8XeohGI6c6kx6a+zrWAOmTfUlYtfRqvnYejyqyPnQIfRHpdifKHoyKKJHFj09ydzfF/2DeXVpOIZhHJ3+cng6htirsNITeqfADYP0sTbdUfisJTqDlQbFBwRI9nklSUOTkgSD7nII++Ft03woH8dmMgPFhL/K5+Kz9tttVJ0PrTe08H13V/7qhcEKcghGxBDpOLRoh6OHXW3raeaEMfakMZhPI=
+cache:
+  directories:
+  - "$HOME/.m2/repository"
+before_install:
+- curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+- sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu
+  $(lsb_release -cs) stable"
+- sudo apt-get update
+- sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+  -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
+- |
+  if [[ "${TRAVIS_COMMIT_MESSAGE}" == "[gitflow]"* ]] && [[ "${TRAVIS_BRANCH}" != v[0-9]* ]] && [[ "${TRAVIS_BRANCH}" != develop ]] && [[ "${TRAVIS_BRANCH}" != release-* ]]; then
+    travis_terminate 0
+  fi
+before_script: 
+script:
+- export COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose pull && docker-compose build
+
+branches:
+  except:
+  - gh-pages
+  - master
